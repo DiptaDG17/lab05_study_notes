@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Part 1: one note, stored at users/{uid}/notes/{noteId}.
@@ -16,7 +17,18 @@ class Note {
   /// - createdAt is a Timestamp (use .toDate()) - or missing/null: then createdAt is null.
   factory Note.fromFirestore(String id, Map<String, dynamic> data) {
     // TODO(1)
-    throw UnimplementedError('Note.fromFirestore');
+    if (data['title'] is! String || data['body'] is! String) {
+      throw FormatException('Invalid note data');
+    }
+
+    final timestamp = data['createdAt'];
+
+    return Note(
+      id: id,
+      title: data['title'] as String,
+      body: data['body'] as String,
+      createdAt: timestamp is Timestamp ? timestamp.toDate() : null,
+    );
   }
 
   /// The map written to Firestore: title, body and
@@ -24,9 +36,12 @@ class Note {
   /// The id is NOT a field - it is the document id.
   Map<String, dynamic> toFirestore() {
     // TODO(1)
-    throw UnimplementedError('Note.toFirestore');
+    return {
+      'title': title,
+      'body': body,
+      'createdAt': FieldValue.serverTimestamp(),
+    };
   }
 }
 
-// Remove this line when you are done:
-// ignore_for_file: unused_import
+
